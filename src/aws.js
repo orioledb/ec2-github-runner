@@ -14,6 +14,17 @@ function buildUserDataScript(githubRegistrationToken, label) {
       `./config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
       './run.sh',
     ];
+  } else if (config.input.runnerUser) {
+    return [
+      '#!/bin/bash',
+      `cd /home/"${config.input.runnerUser}"`,
+      `sudo -u "${config.input.runnerUser}" mkdir actions-runner && cd actions-runner`,
+      'case $(uname -m) in aarch64) ARCH="arm64" ;; amd64|x86_64) ARCH="x64" ;; esac && export RUNNER_ARCH=${ARCH}',
+      `sudo -u "${config.input.runnerUser}" ` + 'curl -O -L https://github.com/actions/runner/releases/download/v2.299.1/actions-runner-linux-${RUNNER_ARCH}-2.299.1.tar.gz',
+      `sudo -u "${config.input.runnerUser}" ` + 'tar xzf ./actions-runner-linux-${RUNNER_ARCH}-2.299.1.tar.gz',
+      `sudo -u "${config.input.runnerUser}" ./config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}`,
+      `sudo -u "${config.input.runnerUser}" ./run.sh`,
+    ];
   } else {
     return [
       '#!/bin/bash',
